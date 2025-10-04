@@ -4,7 +4,7 @@ import { getDatabase, ref, push, onChildAdded, get, orderByChild, update, remove
 
 // Firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyCDCwNxZto-1OFSkpFOHY_CvXig99TB_po",
+  apiKey: "YOUR_API_KEY",
   authDomain: "chatlobby-6f969.firebaseapp.com",
   databaseURL: "https://chatlobby-6f969-default-rtdb.firebaseio.com/",
   projectId: "chatlobby-6f969",
@@ -232,3 +232,4 @@ window.deleteMessage = async function(messageId) {
     }
   }
 };
+
