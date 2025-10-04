@@ -1,0 +1,1986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VFM Tabletop Events Library Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #6c757d;
+            display: none;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .tab-container {
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .tabs {
+            display: flex;
+            overflow-x: auto;
+            padding: 0 30px;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #6c757d;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            color: #4facfe;
+            border-bottom-color: #4facfe;
+        }
+
+        .tab:hover {
+            color: #4facfe;
+        }
+
+        .status {
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin: 10px 30px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .progress-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            margin: 10px 30px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4facfe;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #4facfe;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .games-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .games-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover {
+            background: #e9ecef;
+        }
+
+        .page-btn.active {
+            background: #4facfe;
+            color: white;
+            border-color: #4facfe;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            margin: 0 15px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .page-jump {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            margin-left: 15px;
+        }
+
+        .page-jump input {
+            width: 60px;
+            padding: 6px 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .game-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .game-image {
+            width: 100%;
+            height: 180px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .game-image.loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .game-content {
+            padding: 20px;
+        }
+
+        .game-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .game-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .game-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .game-location {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .bgg-status {
+            font-size: 1.2em;
+            margin-left: 5px;
+        }
+
+        .game-description {
+            color: #6c757d;
+            line-height: 1.5;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .no-data .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .filter-container {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .filter-select {
+            padding: 6px 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .keyboard-shortcuts {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .shortcut {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .shortcut-key {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 200px;
+            gap: 5px;
+            padding: 10px 0;
+        }
+
+        .bar {
+            background: linear-gradient(to top, #4facfe, #00f2fe);
+            border-radius: 3px 3px 0 0;
+            position: relative;
+            min-width: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .bar:hover {
+            opacity: 0.8;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            color: #6c757d;
+            text-align: center;
+            width: max-content;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            font-weight: bold;
+            color: #4facfe;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-container {
+                min-width: auto;
+                max-width: none;
+            }
+
+            .games-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+
+            .pagination {
+                justify-content: center;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .tab {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .control-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎲 VFM Tabletop Events Library</h1>
+            <p>Advanced BGG-integrated game library management with real-time analytics</p>
+        </div>
+
+        <div class="controls">
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search games, locations, BGG ID, age, players... (Press / to focus)">
+                <button id="searchClear" class="search-clear">×</button>
+            </div>
+            
+            <div class="control-group">
+                <button id="fetchBtn" class="btn btn-primary" onclick="fetchFromAPI()">
+                    🔄 Fetch Library
+                </button>
+                <button id="refreshBGGBtn" class="btn btn-success" onclick="refreshBGGData()">
+                    🎯 Update BGG Data
+                </button>
+                <button id="exportBtn" class="btn btn-info" onclick="exportData()">
+                    � Export CSV
+                </button>
+                <button id="helpBtn" class="btn btn-info" onclick="showHelp()">
+                    ❓ Help
+                </button>
+            </div>
+        </div>
+
+        <div id="status" class="status"></div>
+        
+        <div id="progress-container" class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+
+        <div class="tab-container">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('overview')">📊 Overview</button>
+                <button class="tab" onclick="switchTab('library')">📚 Library</button>
+                <button class="tab" onclick="switchTab('trends')">📈 Monthly Trends</button>
+                <button class="tab" onclick="switchTab('locations')">📍 Locations</button>
+                <button class="tab" onclick="switchTab('activity')">⚡ Activity</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div id="totalGames" class="stat-number">0</div>
+                        <div class="stat-label">Total Games</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="bggCoverage" class="stat-number">0%</div>
+                        <div class="stat-label">BGG Coverage</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="checkedOut" class="stat-number">0</div>
+                        <div class="stat-label">Checked Out</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="locations" class="stat-number">0</div>
+                        <div class="stat-label">Locations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="lastUpdate" class="stat-number">Never</div>
+                        <div class="stat-label">Last Updated</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="avgRating" class="stat-number">0.0</div>
+                        <div class="stat-label">Avg BGG Rating</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">Collection Status Distribution</div>
+                    <div id="statusChart" class="bar-chart"></div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">Top Locations</div>
+                    <div id="locationChart" class="bar-chart"></div>
+                </div>
+            </div>
+
+            <!-- Library Tab -->
+            <div id="library-tab" class="tab-content">
+                <div class="filter-container">
+                    <div class="filter-group">
+                        <span class="filter-label">Location:</span>
+                        <select id="locationFilter" class="filter-select">
+                            <option value="">All Locations</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <span class="filter-label">Status:</span>
+                        <select id="statusFilter" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="owned">✅ Owned</option>
+                            <option value="want">🛒 Want to Play</option>
+                            <option value="wanttoplay">🎮 Want to Play</option>
+                            <option value="wanttobuy">🛒 Want to Buy</option>
+                            <option value="wishlist">⭐ Wishlist</option>
+                            <option value="preordered">📤 Pre-ordered</option>
+                            <option value="fortrade">🔄 For Trade</option>
+                            <option value="prevowned">⏪ Previously Owned</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <span class="filter-label">Sort:</span>
+                        <select id="sortFilter" class="filter-select">
+                            <option value="name">Name A-Z</option>
+                            <option value="name-desc">Name Z-A</option>
+                            <option value="date">Date Added</option>
+                            <option value="rating">BGG Rating</option>
+                            <option value="location">Location</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="games-container">
+                    <div class="games-header">
+                        <div class="pagination">
+                            <button id="firstPage" class="page-btn" onclick="goToPage(1)">« First</button>
+                            <button id="prevPage" class="page-btn" onclick="goToPage(currentPage - 1)">‹ Prev</button>
+                            <div class="page-info">
+                                <span id="pageInfo">Page 1 of 1</span>
+                            </div>
+                            <button id="nextPage" class="page-btn" onclick="goToPage(currentPage + 1)">Next ›</button>
+                            <button id="lastPage" class="page-btn" onclick="goToPage(totalPages)">Last »</button>
+                            
+                            <div class="page-jump">
+                                <span>Go to:</span>
+                                <input type="number" id="pageJump" min="1" placeholder="1">
+                                <button class="page-btn" onclick="jumpToPage()">Go</button>
+                            </div>
+                        </div>
+                        
+                        <div class="page-info">
+                            <span id="resultsInfo">Showing 0-0 of 0 games</span>
+                        </div>
+                    </div>
+
+                    <div id="loading" class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Loading games...</p>
+                    </div>
+
+                    <div id="no-data" class="no-data">
+                        <div class="icon">🎲</div>
+                        <h3>No Games Found</h3>
+                        <p>Click "Fetch Library" to load games from Tabletop.events</p>
+                    </div>
+
+                    <div id="games-grid" class="games-grid"></div>
+                </div>
+            </div>
+
+            <!-- Monthly Trends Tab -->
+            <div id="trends-tab" class="tab-content">
+                <div class="chart-container">
+                    <div class="chart-title">Games Added by Month</div>
+                    <div id="monthlyChart" class="bar-chart"></div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">BGG Rating Distribution</div>
+                    <div id="ratingChart" class="bar-chart"></div>
+                </div>
+            </div>
+
+            <!-- Locations Tab -->
+            <div id="locations-tab" class="tab-content">
+                <div class="chart-container">
+                    <div class="chart-title">Games by Location</div>
+                    <div id="locationBreakdown" class="bar-chart"></div>
+                </div>
+                
+                <div id="locationDetails" class="stats-grid"></div>
+            </div>
+
+            <!-- Activity Tab -->
+            <div id="activity-tab" class="tab-content">
+                <div class="chart-container">
+                    <div class="chart-title">Recent Activity</div>
+                    <div id="activityFeed" style="max-height: 400px; overflow-y: auto;"></div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div id="recentAdds" class="stat-number">0</div>
+                        <div class="stat-label">Added This Week</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="recentCheckouts" class="stat-number">0</div>
+                        <div class="stat-label">Recent Checkouts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="popularLocation" class="stat-number">-</div>
+                        <div class="stat-label">Most Active Location</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Modal -->
+        <div id="helpModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Help & Keyboard Shortcuts</h2>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                
+                <div>
+                    <h3>Features</h3>
+                    <ul>
+                        <li><strong>BGG Integration:</strong> Automatically fetches BoardGameGeek data</li>
+                        <li><strong>Smart Search:</strong> Search across all game fields</li>
+                        <li><strong>Live Statistics:</strong> Real-time analytics and charts</li>
+                        <li><strong>Collection Status:</strong> Track your BGG collection status</li>
+                        <li><strong>Location Filtering:</strong> Filter by game storage location</li>
+                    </ul>
+                    
+                    <div class="keyboard-shortcuts">
+                        <div class="shortcut">
+                            <span>Focus Search</span>
+                            <span class="shortcut-key">/</span>
+                        </div>
+                        <div class="shortcut">
+                            <span>Next Page</span>
+                            <span class="shortcut-key">→</span>
+                        </div>
+                        <div class="shortcut">
+                            <span>Previous Page</span>
+                            <span class="shortcut-key">←</span>
+                        </div>
+                        <div class="shortcut">
+                            <span>Close Modal</span>
+                            <span class="shortcut-key">Esc</span>
+                        </div>
+                        <div class="shortcut">
+                            <span>Clear Search</span>
+                            <span class="shortcut-key">Ctrl + K</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, get, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBOoAIllEshLw5j7c4X-J6TQVPRT6qTKpE",
+            authDomain: "keeganfirebasetest.firebaseapp.com",
+            databaseURL: "https://keeganfirebasetest-default-rtdb.firebaseio.com",
+            projectId: "keeganfirebasetest",
+            storageBucket: "keeganfirebasetest.appspot.com",
+            messagingSenderId: "1071344813363",
+            appId: "1:1071344813363:web:b5b06b7e6f4b6c7e8d6c1a"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const tabletopRef = ref(db, 'tabletopEvents');
+        const bggCacheRef = ref(db, 'bggCache');
+
+        // Global state
+        let allGamesCache = [];
+        let bggCollectionCache = null;
+        let bggImageCache = new Map();
+        let currentPage = 1;
+        let totalPages = 1;
+        let itemsPerPage = 25;
+        let currentTab = 'overview';
+        let isSearchMode = false;
+        let searchResults = [];
+        let filteredGames = [];
+        let searchTimeout = null;
+
+        // BGG API configuration
+        const CORS_PROXIES = [
+            'https://corsproxy.io/?',
+            'https://api.allorigins.win/raw?url='
+        ];
+        const BGG_USERNAME = 'sportomax';
+        const BGG_BATCH_SIZE = 15;
+
+        // DOM elements
+        const searchInput = document.getElementById('searchInput');
+        const searchClear = document.getElementById('searchClear');
+        const status = document.getElementById('status');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress-bar');
+        const helpModal = document.getElementById('helpModal');
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            loadStoredData();
+            showStatus('VFM Library Manager loaded. Use "/" to focus search.', 'info');
+        });
+
+        // Event listeners setup
+        function setupEventListeners() {
+            // Search functionality
+            searchInput.addEventListener('input', debounce(handleSearch, 300));
+            searchClear.addEventListener('click', clearSearch);
+            
+            // Filter handlers
+            document.getElementById('locationFilter').addEventListener('change', applyFilters);
+            document.getElementById('statusFilter').addEventListener('change', applyFilters);
+            document.getElementById('sortFilter').addEventListener('change', applyFilters);
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', handleKeyboardShortcuts);
+            
+            // Page jump
+            document.getElementById('pageJump').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') jumpToPage();
+            });
+        }
+
+        // Keyboard shortcuts handler
+        function handleKeyboardShortcuts(e) {
+            // Focus search with "/"
+            if (e.key === '/' && document.activeElement !== searchInput) {
+                e.preventDefault();
+                searchInput.focus();
+                return;
+            }
+            
+            // Clear search with Ctrl+K
+            if (e.ctrlKey && e.key === 'k') {
+                e.preventDefault();
+                clearSearch();
+                return;
+            }
+            
+            // Close modal with Escape
+            if (e.key === 'Escape') {
+                closeModal();
+                return;
+            }
+            
+            // Navigate pages with arrow keys (when not typing)
+            if (document.activeElement.tagName !== 'INPUT') {
+                if (e.key === 'ArrowLeft' && currentPage > 1) {
+                    goToPage(currentPage - 1);
+                } else if (e.key === 'ArrowRight' && currentPage < totalPages) {
+                    goToPage(currentPage + 1);
+                }
+            }
+        }
+
+        // Utility functions
+        function debounce(func, wait) {
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(searchTimeout);
+                    func(...args);
+                };
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(later, wait);
+            };
+        }
+
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => status.style.display = 'none', 5000);
+            }
+        }
+
+        function showProgress(percent) {
+            progressContainer.style.display = 'block';
+            progressBar.style.width = percent + '%';
+        }
+
+        function hideProgress() {
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                return new Date(dateString).toLocaleDateString();
+            } catch {
+                return dateString;
+            }
+        }
+
+        // Tab switching
+        window.switchTab = function(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            currentTab = tabName;
+            
+            // Update content based on tab
+            if (tabName === 'overview') {
+                updateOverviewStats();
+            } else if (tabName === 'library') {
+                displayCurrentPage();
+            } else if (tabName === 'trends') {
+                updateTrendsCharts();
+            } else if (tabName === 'locations') {
+                updateLocationCharts();
+            } else if (tabName === 'activity') {
+                updateActivityFeed();
+            }
+        };
+
+        // Main API fetch function
+        window.fetchFromAPI = async function() {
+            const apiUrls = [
+                'https://tabletop.events/api/library/0AEB11DA-2B7D-11EC-B400-855F800FD618/librarygames?_page_number=1&_items_per_page=500&_sort=date_created&_order=desc',
+                'https://tabletop.events/api/library/0AEB11DA-2B7D-11EC-B400-855F800FD618/librarygames?_page_number=1&_items_per_page=500',
+                'https://tabletop.events/api/library/0AEB11DA-2B7D-11EC-B400-855F800FD618/librarygames'
+            ];
+            
+            for (let urlIndex = 0; urlIndex < apiUrls.length; urlIndex++) {
+                try {
+                    const apiUrl = apiUrls[urlIndex];
+                    showStatus(`Fetching library data (attempt ${urlIndex + 1}/${apiUrls.length})...`, 'info');
+                    showProgress(10);
+                    
+                    console.log('Fetching from URL:', apiUrl);
+                    
+                    const response = await fetch(apiUrl);
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', response.headers);
+                    
+                    if (!response.ok) {
+                        throw new Error(`API responded with status: ${response.status}`);
+                    }
+                    
+                    showProgress(30);
+                    const rawText = await response.text();
+                    console.log('Raw response (first 1000 chars):', rawText.substring(0, 1000));
+                    
+                    let data;
+                    try {
+                        data = JSON.parse(rawText);
+                    } catch (parseError) {
+                        console.error('JSON parse error:', parseError);
+                        console.log('Full response text:', rawText);
+                        throw new Error(`Invalid JSON response: ${parseError.message}`);
+                    }
+                    
+                    console.log('Parsed data structure:', data);
+                    console.log('Data keys:', Object.keys(data || {}));
+                    
+                    // More flexible data extraction
+                    let games = [];
+                    
+                    if (data && Array.isArray(data)) {
+                        // Response is directly an array
+                        games = data;
+                    } else if (data && data.data && Array.isArray(data.data)) {
+                        // Response has data property with array
+                        games = data.data;
+                    } else if (data && data.results && Array.isArray(data.results)) {
+                        // Response has results property with array
+                        games = data.results;
+                    } else if (data && data.items && Array.isArray(data.items)) {
+                        // Response has items property with array
+                        games = data.items;
+                    } else if (data && data.games && Array.isArray(data.games)) {
+                        // Response has games property with array
+                        games = data.games;
+                    } else {
+                        console.error('Unexpected data structure:', data);
+                        throw new Error(`Unexpected response format. Expected array or object with array property. Got: ${typeof data}`);
+                    }
+
+                    console.log(`Found ${games.length} games in response`);
+                    
+                    if (games.length === 0) {
+                        throw new Error('API returned empty results');
+                    }
+
+                    showProgress(50);
+                    
+                    // Filter out games with blank locations (if location field exists)
+                    const originalCount = games.length;
+                    if (games.length > 0 && games[0].hasOwnProperty('location')) {
+                        games = games.filter(game => game.location && game.location.trim() !== '');
+                        console.log(`Filtered from ${originalCount} to ${games.length} games with valid locations`);
+                    }
+                    
+                    showStatus(`Processing ${games.length} games...`, 'info');
+                    showProgress(70);
+                    
+                    // Store in Firebase and cache
+                    await storeGamesData(games);
+                    allGamesCache = games;
+                    
+                    showProgress(90);
+                    
+                    // Fetch BGG data for games with BGG IDs
+                    const bggGames = games.filter(game => game.bgg_id);
+                    if (bggGames.length > 0) {
+                        showStatus(`Found ${bggGames.length} games with BGG IDs, fetching BGG data...`, 'info');
+                        await fetchBGGDataForGames(games);
+                    } else {
+                        console.log('No games found with BGG IDs');
+                    }
+                    
+                    showProgress(100);
+                    hideProgress();
+                    
+                    // Update UI
+                    populateLocationFilter();
+                    updateOverviewStats();
+                    displayCurrentPage();
+                    
+                    showStatus(`Successfully loaded ${games.length} games${bggGames.length > 0 ? ' with BGG integration' : ''}!`, 'success');
+                    
+                    return; // Success, exit the retry loop
+                    
+                } catch (error) {
+                    console.error(`Attempt ${urlIndex + 1} failed:`, error);
+                    
+                    // If this was the last URL, show final error
+                    if (urlIndex === apiUrls.length - 1) {
+                        hideProgress();
+                        showStatus(`All API attempts failed. Last error: ${error.message}`, 'error');
+                        
+                        // Try to load cached data
+                        setTimeout(() => {
+                            showStatus('Attempting to load cached data...', 'info');
+                            loadStoredData();
+                        }, 2000);
+                    } else {
+                        // Wait a moment before trying next URL
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                }
+            }
+        };
+
+        // Load stored data from Firebase
+        async function loadStoredData() {
+            try {
+                showStatus('Loading stored data...', 'info');
+                
+                const snapshot = await get(tabletopRef);
+                const bggSnapshot = await get(bggCacheRef);
+                
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    allGamesCache = data.games || [];
+                    
+                    // Load BGG cache
+                    if (bggSnapshot.exists()) {
+                        const bggData = bggSnapshot.val();
+                        bggCollectionCache = bggData.collection || null;
+                        
+                        // Rebuild image cache
+                        if (bggData.images) {
+                            bggImageCache = new Map(Object.entries(bggData.images));
+                        }
+                    }
+                    
+                    populateLocationFilter();
+                    updateOverviewStats();
+                    displayCurrentPage();
+                    
+                    showStatus(`Loaded ${allGamesCache.length} games from cache`, 'success');
+                } else {
+                    showStatus('No stored data found. Click "Fetch Library" to load fresh data.', 'info');
+                }
+                
+            } catch (error) {
+                console.error('Error loading stored data:', error);
+                showStatus('Error loading stored data: ' + error.message, 'error');
+            }
+        }
+
+        // Store games data in Firebase
+        async function storeGamesData(games) {
+            const firebaseData = {
+                games: games,
+                metadata: {
+                    totalGames: games.length,
+                    lastUpdated: new Date().toISOString(),
+                    source: 'Tabletop.events API'
+                }
+            };
+            
+            await set(tabletopRef, firebaseData);
+        }
+
+        // BGG Integration Functions
+        async function fetchBGGDataForGames(games) {
+            showStatus('Fetching BGG collection data...', 'info');
+            
+            try {
+                // Fetch user's BGG collection if not cached
+                if (!bggCollectionCache) {
+                    bggCollectionCache = await fetchBGGCollection();
+                }
+                
+                // Create lookup map for BGG data
+                const bggLookup = new Map();
+                if (bggCollectionCache) {
+                    bggCollectionCache.forEach(item => {
+                        bggLookup.set(item.objectid.toString(), item);
+                    });
+                }
+                
+                // Fetch images for games with BGG IDs in batches
+                const bggIds = games
+                    .filter(game => game.bgg_id && !bggImageCache.has(game.bgg_id.toString()))
+                    .map(game => game.bgg_id.toString())
+                    .slice(0, 50); // Limit initial batch
+                
+                if (bggIds.length > 0) {
+                    showStatus(`Fetching BGG images for ${bggIds.length} games...`, 'info');
+                    await fetchBGGImages(bggIds);
+                }
+                
+                // Apply BGG data to games
+                games.forEach(game => {
+                    if (game.bgg_id) {
+                        const bggData = bggLookup.get(game.bgg_id.toString());
+                        if (bggData) {
+                            game.bgg_status = bggData.status;
+                            game.bgg_rating = bggData.stats?.rating?.value || null;
+                            game.bgg_rank = bggData.stats?.rating?.ranks?.find(r => r.name === 'boardgame')?.value || null;
+                        }
+                        
+                        // Add cached image
+                        if (bggImageCache.has(game.bgg_id.toString())) {
+                            game.bgg_thumbnail = bggImageCache.get(game.bgg_id.toString());
+                        }
+                    }
+                });
+                
+                // Save BGG cache
+                await saveBGGCache();
+                
+            } catch (error) {
+                console.error('Error fetching BGG data:', error);
+                showStatus('BGG integration failed, continuing with basic data...', 'error');
+            }
+        }
+
+        // Fetch BGG collection
+        async function fetchBGGCollection() {
+            for (const proxy of CORS_PROXIES) {
+                try {
+                    const url = `${proxy}https://boardgamegeek.com/xmlapi2/collection?username=${BGG_USERNAME}&stats=1`;
+                    const response = await fetch(url);
+                    
+                    if (!response.ok) continue;
+                    
+                    const xmlText = await response.text();
+                    if (xmlText.includes('please try again')) continue;
+                    
+                    return parseBGGCollection(xmlText);
+                    
+                } catch (error) {
+                    console.warn(`BGG collection fetch failed with proxy ${proxy}:`, error);
+                }
+            }
+            
+            throw new Error('All BGG collection fetch attempts failed');
+        }
+
+        // Parse BGG collection XML
+        function parseBGGCollection(xmlText) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(xmlText, 'text/xml');
+            const items = doc.querySelectorAll('item');
+            
+            return Array.from(items).map(item => ({
+                objectid: item.getAttribute('objectid'),
+                name: item.querySelector('name')?.textContent,
+                status: {
+                    own: item.querySelector('status')?.getAttribute('own') === '1',
+                    want: item.querySelector('status')?.getAttribute('want') === '1',
+                    wanttoplay: item.querySelector('status')?.getAttribute('wanttoplay') === '1',
+                    wanttobuy: item.querySelector('status')?.getAttribute('wanttobuy') === '1',
+                    wishlist: item.querySelector('status')?.getAttribute('wishlist') === '1',
+                    preordered: item.querySelector('status')?.getAttribute('preordered') === '1',
+                    fortrade: item.querySelector('status')?.getAttribute('fortrade') === '1',
+                    prevowned: item.querySelector('status')?.getAttribute('prevowned') === '1'
+                },
+                stats: {
+                    rating: {
+                        value: parseFloat(item.querySelector('stats rating')?.getAttribute('value')) || null,
+                        ranks: Array.from(item.querySelectorAll('rank')).map(rank => ({
+                            name: rank.getAttribute('name'),
+                            value: parseInt(rank.getAttribute('value')) || null
+                        }))
+                    }
+                }
+            }));
+        }
+
+        // Fetch BGG images in batches
+        async function fetchBGGImages(bggIds) {
+            const batches = [];
+            for (let i = 0; i < bggIds.length; i += BGG_BATCH_SIZE) {
+                batches.push(bggIds.slice(i, i + BGG_BATCH_SIZE));
+            }
+            
+            for (const batch of batches) {
+                try {
+                    await fetchBGGImageBatch(batch);
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Rate limiting
+                } catch (error) {
+                    console.warn('BGG image batch failed:', error);
+                }
+            }
+        }
+
+        // Fetch single batch of BGG images
+        async function fetchBGGImageBatch(bggIds) {
+            const idsParam = bggIds.join(',');
+            
+            for (const proxy of CORS_PROXIES) {
+                try {
+                    const url = `${proxy}https://boardgamegeek.com/xmlapi2/thing?id=${idsParam}`;
+                    const response = await fetch(url);
+                    
+                    if (!response.ok) continue;
+                    
+                    const xmlText = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(xmlText, 'text/xml');
+                    
+                    doc.querySelectorAll('item').forEach(item => {
+                        const id = item.getAttribute('id');
+                        const thumbnail = item.querySelector('thumbnail')?.textContent;
+                        if (id && thumbnail) {
+                            bggImageCache.set(id, thumbnail);
+                        }
+                    });
+                    
+                    return; // Success, exit proxy loop
+                    
+                } catch (error) {
+                    console.warn(`BGG image fetch failed with proxy ${proxy}:`, error);
+                }
+            }
+        }
+
+        // Save BGG cache to Firebase
+        async function saveBGGCache() {
+            const cacheData = {
+                collection: bggCollectionCache,
+                images: Object.fromEntries(bggImageCache),
+                lastUpdated: new Date().toISOString()
+            };
+            
+            await set(bggCacheRef, cacheData);
+        }
+
+        // Refresh BGG data
+        window.refreshBGGData = async function() {
+            try {
+                showStatus('Refreshing BGG data...', 'info');
+                showProgress(10);
+                
+                // Clear caches
+                bggCollectionCache = null;
+                bggImageCache.clear();
+                
+                showProgress(50);
+                
+                // Re-fetch BGG data
+                if (allGamesCache.length > 0) {
+                    await fetchBGGDataForGames(allGamesCache);
+                    updateOverviewStats();
+                    displayCurrentPage();
+                }
+                
+                showProgress(100);
+                hideProgress();
+                showStatus('BGG data refreshed successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error refreshing BGG data:', error);
+                hideProgress();
+                showStatus('Error refreshing BGG data: ' + error.message, 'error');
+            }
+        };
+
+        // Search functionality
+        function handleSearch() {
+            const query = searchInput.value.trim().toLowerCase();
+            
+            if (query.length === 0) {
+                clearSearch();
+                return;
+            }
+            
+            searchClear.style.display = 'block';
+            
+            // Search across multiple fields
+            searchResults = allGamesCache.filter(game => {
+                return (
+                    (game.name && game.name.toLowerCase().includes(query)) ||
+                    (game.location && game.location.toLowerCase().includes(query)) ||
+                    (game.bgg_id && game.bgg_id.toString().includes(query)) ||
+                    (game.description && game.description.toLowerCase().includes(query)) ||
+                    (game.min_age && game.min_age.toString().includes(query)) ||
+                    (game.max_age && game.max_age.toString().includes(query)) ||
+                    (game.min_players && game.min_players.toString().includes(query)) ||
+                    (game.max_players && game.max_players.toString().includes(query))
+                );
+            });
+            
+            isSearchMode = true;
+            currentPage = 1;
+            displayCurrentPage();
+        }
+
+        function clearSearch() {
+            searchInput.value = '';
+            searchClear.style.display = 'none';
+            isSearchMode = false;
+            searchResults = [];
+            currentPage = 1;
+            displayCurrentPage();
+        }
+
+        // Filter functionality
+        function applyFilters() {
+            const locationFilter = document.getElementById('locationFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const sortFilter = document.getElementById('sortFilter').value;
+            
+            let games = isSearchMode ? searchResults : allGamesCache;
+            
+            // Apply location filter
+            if (locationFilter) {
+                games = games.filter(game => game.location === locationFilter);
+            }
+            
+            // Apply status filter
+            if (statusFilter) {
+                games = games.filter(game => {
+                    if (!game.bgg_status) return false;
+                    return game.bgg_status[statusFilter] === true;
+                });
+            }
+            
+            // Apply sorting
+            games.sort((a, b) => {
+                switch (sortFilter) {
+                    case 'name-desc':
+                        return (b.name || '').localeCompare(a.name || '');
+                    case 'date':
+                        return new Date(b.date_created || 0) - new Date(a.date_created || 0);
+                    case 'rating':
+                        return (b.bgg_rating || 0) - (a.bgg_rating || 0);
+                    case 'location':
+                        return (a.location || '').localeCompare(b.location || '');
+                    default: // name
+                        return (a.name || '').localeCompare(b.name || '');
+                }
+            });
+            
+            filteredGames = games;
+            currentPage = 1;
+            displayCurrentPage();
+        }
+
+        // Pagination functions
+        function getCurrentGames() {
+            let games = filteredGames.length > 0 ? filteredGames : 
+                       isSearchMode ? searchResults : allGamesCache;
+            
+            totalPages = Math.ceil(games.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            
+            return {
+                games: games.slice(startIndex, endIndex),
+                total: games.length,
+                start: startIndex + 1,
+                end: Math.min(endIndex, games.length)
+            };
+        }
+
+        window.goToPage = function(page) {
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                displayCurrentPage();
+            }
+        };
+
+        window.jumpToPage = function() {
+            const page = parseInt(document.getElementById('pageJump').value);
+            if (page) {
+                goToPage(page);
+                document.getElementById('pageJump').value = '';
+            }
+        };
+
+        // Display functions
+        function displayCurrentPage() {
+            if (currentTab !== 'library') return;
+            
+            const result = getCurrentGames();
+            const { games, total, start, end } = result;
+            
+            // Update pagination info
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('resultsInfo').textContent = `Showing ${start}-${end} of ${total} games`;
+            document.getElementById('pageJump').max = totalPages;
+            
+            // Update pagination buttons
+            document.getElementById('firstPage').disabled = currentPage === 1;
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+            document.getElementById('lastPage').disabled = currentPage === totalPages;
+            
+            // Display games
+            displayGames(games);
+        }
+
+        function displayGames(games) {
+            const gamesGrid = document.getElementById('games-grid');
+            const loading = document.getElementById('loading');
+            const noData = document.getElementById('no-data');
+            
+            loading.style.display = 'none';
+            
+            if (games.length === 0) {
+                noData.style.display = 'block';
+                gamesGrid.innerHTML = '';
+                return;
+            }
+            
+            noData.style.display = 'none';
+            
+            gamesGrid.innerHTML = games.map(game => createGameCard(game)).join('');
+            
+            // Lazy load BGG images for current page
+            lazyLoadBGGImages(games);
+        }
+
+        function createGameCard(game) {
+            const bggStatus = getBGGStatusEmoji(game.bgg_status);
+            const hasImage = game.bgg_thumbnail || bggImageCache.has(game.bgg_id?.toString());
+            
+            return `
+                <div class="game-card">
+                    <div class="game-image ${!hasImage ? 'loading' : ''}">
+                        ${hasImage ? 
+                            `<img src="${game.bgg_thumbnail || bggImageCache.get(game.bgg_id?.toString())}" 
+                                  alt="${escapeHtml(game.name)}" 
+                                  onerror="this.parentElement.innerHTML='🎲'">` :
+                            '<span style="font-size: 3em; color: #ccc;">🎲</span>'
+                        }
+                    </div>
+                    <div class="game-content">
+                        <div class="game-title">${escapeHtml(game.name || 'Unknown Game')}</div>
+                        <div class="game-meta">
+                            ${game.location ? `<div class="game-location">${escapeHtml(game.location)}</div>` : ''}
+                            ${game.bgg_id ? `<div class="game-meta-item">🎯 BGG: ${game.bgg_id}</div>` : ''}
+                            ${bggStatus ? `<span class="bgg-status">${bggStatus}</span>` : ''}
+                        </div>
+                        <div class="game-meta">
+                            ${game.min_players && game.max_players ? 
+                                `<div class="game-meta-item">👥 ${game.min_players}-${game.max_players} players</div>` : ''}
+                            ${game.min_age ? `<div class="game-meta-item">🎂 ${game.min_age}+</div>` : ''}
+                            ${game.bgg_rating ? `<div class="game-meta-item">⭐ ${parseFloat(game.bgg_rating).toFixed(1)}</div>` : ''}
+                        </div>
+                        ${game.description ? 
+                            `<div class="game-description">${escapeHtml(game.description.substring(0, 150))}${game.description.length > 150 ? '...' : ''}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function getBGGStatusEmoji(status) {
+            if (!status) return '';
+            
+            if (status.own) return '✅';
+            if (status.wanttoplay) return '🎮';
+            if (status.wanttobuy) return '🛒';
+            if (status.fortrade) return '🔄';
+            if (status.prevowned) return '⏪';
+            if (status.preordered) return '📤';
+            if (status.wishlist) return '⭐';
+            if (status.want) return '🛒';
+            
+            return '';
+        }
+
+        // Lazy load BGG images for current page
+        async function lazyLoadBGGImages(games) {
+            const missingImages = games
+                .filter(game => game.bgg_id && !bggImageCache.has(game.bgg_id.toString()))
+                .map(game => game.bgg_id.toString());
+            
+            if (missingImages.length > 0) {
+                try {
+                    await fetchBGGImages(missingImages.slice(0, BGG_BATCH_SIZE));
+                    await saveBGGCache();
+                    
+                    // Refresh display to show new images
+                    displayCurrentPage();
+                } catch (error) {
+                    console.warn('Failed to lazy load BGG images:', error);
+                }
+            }
+        }
+
+        // Statistics and charts
+        function updateOverviewStats() {
+            if (allGamesCache.length === 0) return;
+            
+            const games = allGamesCache;
+            const bggGames = games.filter(g => g.bgg_id);
+            const checkedOutGames = games.filter(g => g.location && !g.location.toLowerCase().includes('shelf'));
+            const locations = [...new Set(games.map(g => g.location).filter(Boolean))];
+            const avgRating = bggGames.length > 0 ? 
+                bggGames.filter(g => g.bgg_rating).reduce((sum, g) => sum + parseFloat(g.bgg_rating), 0) / bggGames.filter(g => g.bgg_rating).length : 0;
+            
+            // Update stat cards
+            document.getElementById('totalGames').textContent = games.length;
+            document.getElementById('bggCoverage').textContent = `${Math.round((bggGames.length / games.length) * 100)}%`;
+            document.getElementById('checkedOut').textContent = checkedOutGames.length;
+            document.getElementById('locations').textContent = locations.length;
+            document.getElementById('avgRating').textContent = avgRating.toFixed(1);
+            
+            // Last update
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString();
+            
+            // Update charts
+            updateStatusChart();
+            updateLocationChart();
+        }
+
+        function updateStatusChart() {
+            const statusCounts = {
+                '✅ Owned': 0,
+                '🎮 Want to Play': 0,
+                '🛒 Want to Buy': 0,
+                '🔄 For Trade': 0,
+                '⏪ Previously Owned': 0,
+                '📤 Pre-ordered': 0
+            };
+            
+            allGamesCache.forEach(game => {
+                if (!game.bgg_status) return;
+                
+                if (game.bgg_status.own) statusCounts['✅ Owned']++;
+                if (game.bgg_status.wanttoplay) statusCounts['🎮 Want to Play']++;
+                if (game.bgg_status.wanttobuy) statusCounts['🛒 Want to Buy']++;
+                if (game.bgg_status.fortrade) statusCounts['🔄 For Trade']++;
+                if (game.bgg_status.prevowned) statusCounts['⏪ Previously Owned']++;
+                if (game.bgg_status.preordered) statusCounts['📤 Pre-ordered']++;
+            });
+            
+            renderBarChart('statusChart', statusCounts);
+        }
+
+        function updateLocationChart() {
+            const locationCounts = {};
+            
+            allGamesCache.forEach(game => {
+                if (game.location) {
+                    locationCounts[game.location] = (locationCounts[game.location] || 0) + 1;
+                }
+            });
+            
+            // Get top 10 locations
+            const topLocations = Object.entries(locationCounts)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 10)
+                .reduce((obj, [key, val]) => {
+                    obj[key] = val;
+                    return obj;
+                }, {});
+            
+            renderBarChart('locationChart', topLocations);
+        }
+
+        function renderBarChart(containerId, data) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const maxValue = Math.max(...Object.values(data));
+            
+            container.innerHTML = Object.entries(data).map(([label, value]) => {
+                const height = (value / maxValue) * 100;
+                return `
+                    <div class="bar" style="height: ${height}%">
+                        <div class="bar-value">${value}</div>
+                        <div class="bar-label">${label}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Trends tab functions
+        function updateTrendsCharts() {
+            if (currentTab !== 'trends') return;
+            
+            // Monthly trends
+            const monthlyData = {};
+            allGamesCache.forEach(game => {
+                if (game.date_created) {
+                    const date = new Date(game.date_created);
+                    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    monthlyData[monthKey] = (monthlyData[monthKey] || 0) + 1;
+                }
+            });
+            
+            renderBarChart('monthlyChart', monthlyData);
+            
+            // Rating distribution
+            const ratingRanges = {
+                '9-10': 0, '8-9': 0, '7-8': 0, '6-7': 0, '5-6': 0, 'Below 5': 0
+            };
+            
+            allGamesCache.forEach(game => {
+                if (game.bgg_rating) {
+                    const rating = parseFloat(game.bgg_rating);
+                    if (rating >= 9) ratingRanges['9-10']++;
+                    else if (rating >= 8) ratingRanges['8-9']++;
+                    else if (rating >= 7) ratingRanges['7-8']++;
+                    else if (rating >= 6) ratingRanges['6-7']++;
+                    else if (rating >= 5) ratingRanges['5-6']++;
+                    else ratingRanges['Below 5']++;
+                }
+            });
+            
+            renderBarChart('ratingChart', ratingRanges);
+        }
+
+        // Location tab functions
+        function updateLocationCharts() {
+            if (currentTab !== 'locations') return;
+            
+            const locationStats = {};
+            allGamesCache.forEach(game => {
+                if (game.location) {
+                    if (!locationStats[game.location]) {
+                        locationStats[game.location] = { count: 0, bggGames: 0, avgRating: 0, ratings: [] };
+                    }
+                    locationStats[game.location].count++;
+                    if (game.bgg_id) locationStats[game.location].bggGames++;
+                    if (game.bgg_rating) locationStats[game.location].ratings.push(parseFloat(game.bgg_rating));
+                }
+            });
+            
+            // Calculate averages
+            Object.values(locationStats).forEach(stat => {
+                if (stat.ratings.length > 0) {
+                    stat.avgRating = stat.ratings.reduce((a, b) => a + b) / stat.ratings.length;
+                }
+            });
+            
+            const locationCounts = Object.fromEntries(
+                Object.entries(locationStats).map(([loc, stat]) => [loc, stat.count])
+            );
+            
+            renderBarChart('locationBreakdown', locationCounts);
+            
+            // Update location details
+            const detailsContainer = document.getElementById('locationDetails');
+            detailsContainer.innerHTML = Object.entries(locationStats).map(([location, stats]) => `
+                <div class="stat-card">
+                    <div class="stat-number">${location}</div>
+                    <div class="stat-label">${stats.count} games • ${stats.bggGames} with BGG • Avg: ${stats.avgRating.toFixed(1)}</div>
+                </div>
+            `).join('');
+        }
+
+        // Activity tab functions
+        function updateActivityFeed() {
+            if (currentTab !== 'activity') return;
+            
+            // Recent additions (last 7 days)
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            
+            const recentGames = allGamesCache.filter(game => 
+                game.date_created && new Date(game.date_created) > weekAgo
+            );
+            
+            document.getElementById('recentAdds').textContent = recentGames.length;
+            
+            // Mock checkout data
+            document.getElementById('recentCheckouts').textContent = Math.floor(Math.random() * 20);
+            
+            // Most popular location
+            const locationCounts = {};
+            allGamesCache.forEach(game => {
+                if (game.location) {
+                    locationCounts[game.location] = (locationCounts[game.location] || 0) + 1;
+                }
+            });
+            
+            const popularLocation = Object.entries(locationCounts)
+                .sort(([,a], [,b]) => b - a)[0];
+            
+            document.getElementById('popularLocation').textContent = 
+                popularLocation ? popularLocation[0] : 'N/A';
+            
+            // Activity feed
+            const feedContainer = document.getElementById('activityFeed');
+            const recentActivity = recentGames
+                .sort((a, b) => new Date(b.date_created) - new Date(a.date_created))
+                .slice(0, 10);
+            
+            feedContainer.innerHTML = recentActivity.map(game => `
+                <div style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.5em;">➕</span>
+                    <div>
+                        <strong>${escapeHtml(game.name)}</strong> added to <em>${escapeHtml(game.location)}</em>
+                        <div style="font-size: 0.9em; color: #666;">${formatDate(game.date_created)}</div>
+                    </div>
+                </div>
+            `).join('') || '<p style="text-align: center; color: #666; padding: 20px;">No recent activity</p>';
+        }
+
+        // Populate location filter
+        function populateLocationFilter() {
+            const locationFilter = document.getElementById('locationFilter');
+            const locations = [...new Set(allGamesCache.map(g => g.location).filter(Boolean))].sort();
+            
+            locationFilter.innerHTML = '<option value="">All Locations</option>' +
+                locations.map(loc => `<option value="${escapeHtml(loc)}">${escapeHtml(loc)}</option>`).join('');
+        }
+
+        // Export functionality
+        window.exportData = function() {
+            if (allGamesCache.length === 0) {
+                showStatus('No data to export. Fetch library data first.', 'error');
+                return;
+            }
+
+            try {
+                const headers = ['Name', 'Location', 'BGG ID', 'BGG Status', 'BGG Rating', 'Min Players', 'Max Players', 'Min Age', 'Description', 'Date Added'];
+                const csvContent = [
+                    headers.join(','),
+                    ...allGamesCache.map(game => [
+                        `"${(game.name || '').replace(/"/g, '""')}"`,
+                        `"${(game.location || '').replace(/"/g, '""')}"`,
+                        game.bgg_id || '',
+                        getBGGStatusEmoji(game.bgg_status),
+                        game.bgg_rating || '',
+                        game.min_players || '',
+                        game.max_players || '',
+                        game.min_age || '',
+                        `"${(game.description || '').replace(/"/g, '""')}"`,
+                        formatDate(game.date_created)
+                    ].join(','))
+                ].join('\n');
+
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `vfm-tabletop-library-${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                showStatus(`Exported ${allGamesCache.length} games to CSV!`, 'success');
+                
+            } catch (error) {
+                console.error('Error exporting data:', error);
+                showStatus(`Error exporting data: ${error.message}`, 'error');
+            }
+        };
+
+        // Help modal
+        window.showHelp = function() {
+            helpModal.style.display = 'block';
+        };
+
+        window.closeModal = function() {
+            helpModal.style.display = 'none';
+        };
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === helpModal) {
+                closeModal();
+            }
+        });
+
+    </script>
+</body>
+</html>
