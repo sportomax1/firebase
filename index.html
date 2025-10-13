@@ -2,24 +2,199 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Firebase Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4285f4;
+            padding-bottom: 10px;
+        }
+        #status {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        #status.loading {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+        }
+        #status.success {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            color: #155724;
+        }
+        #status.error {
+            background: #f8d7da;
+            border: 1px solid #dc3545;
+            color: #721c24;
+        }
+        #output {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            margin-top: 20px;
+            min-height: 100px;
+        }
+        pre {
+            margin: 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        button {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+        button:hover {
+            background: #357ae8;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border-left: 4px solid #4285f4;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to My Program</h1>
+    <div class="container">
+        <h1>🔥 Firebase Data Viewer</h1>
+        
+        <div id="status" class="loading">⏳ Initializing...</div>
+        
+        <button id="fetchBtn" onclick="fetchFirebaseData()">Fetch Student Data</button>
+        
+        <div id="output"></div>
+        
+        <div class="info">
+            <strong>ℹ️ How it works:</strong>
+            <ul>
+                <li>Secrets are injected via GitHub Actions during deployment</li>
+                <li>env.js is created automatically (not in your repo)</li>
+                <li>Click "Fetch Student Data" to load from Firebase</li>
+                <li>Check the browser console for debug info</li>
+            </ul>
+        </div>
+    </div>
 
     <!-- Load Firebase secrets first -->
     <script src="env.js"></script>
 
-    <!-- Then your main fetch script -->
-    <script src="scripts/fetchData.js"></script>
-
+    <!-- Main script -->
     <script>
-      // Optional: quick check that secrets loaded correctly
-      if (!window.__APP_CONFIG__) {
-        console.error("env.js not loaded! Firebase config missing.");
-      } else {
-        console.log("Firebase config loaded:", window.__APP_CONFIG__);
-      }
+        const statusEl = document.getElementById('status');
+        const outputEl = document.getElementById('output');
+        const fetchBtn = document.getElementById('fetchBtn');
+
+        // Check if env.js loaded correctly
+        window.addEventListener('load', () => {
+            if (!window.__APP_CONFIG__) {
+                statusEl.className = 'error';
+                statusEl.textContent = '❌ Error: env.js not loaded! Secrets missing.';
+                outputEl.innerHTML = '<strong>Troubleshooting:</strong><br>1. Check if GitHub Actions workflow ran successfully<br>2. Verify secrets are set in repo settings<br>3. Check browser console for errors';
+                fetchBtn.disabled = true;
+                console.error('env.js missing or not loaded');
+            } else {
+                statusEl.className = 'success';
+                statusEl.textContent = '✅ Configuration loaded successfully!';
+                outputEl.textContent = 'Ready to fetch data. Click the button above.';
+                console.log('Firebase config loaded:', {
+                    hasApiKey: !!window.__APP_CONFIG__.FIREBASE_API_KEY,
+                    hasDbUrl: !!window.__APP_CONFIG__.FIREBASE_DB_URL,
+                    hasProjectId: !!window.__APP_CONFIG__.FIREBASE_PROJECT_ID
+                });
+            }
+        });
+
+        async function fetchFirebaseData() {
+            const config = window.__APP_CONFIG__;
+            
+            if (!config) {
+                alert('Configuration not loaded!');
+                return;
+            }
+
+            const { FIREBASE_API_KEY, FIREBASE_DB_URL } = config;
+
+            if (!FIREBASE_API_KEY || !FIREBASE_DB_URL) {
+                statusEl.className = 'error';
+                statusEl.textContent = '❌ Missing Firebase configuration';
+                outputEl.textContent = 'Error: API Key or Database URL is missing';
+                return;
+            }
+
+            // Update UI
+            statusEl.className = 'loading';
+            statusEl.textContent = '⏳ Fetching data from Firebase...';
+            outputEl.textContent = 'Loading...';
+            fetchBtn.disabled = true;
+
+            const url = `${FIREBASE_DB_URL}/students.json?auth=${FIREBASE_API_KEY}`;
+            console.log('Fetching from:', FIREBASE_DB_URL + '/students.json');
+
+            try {
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // Success!
+                statusEl.className = 'success';
+                statusEl.textContent = '✅ Data fetched successfully!';
+                
+                if (data === null || (typeof data === 'object' && Object.keys(data).length === 0)) {
+                    outputEl.innerHTML = '<em>No student data found in database.</em>';
+                } else {
+                    outputEl.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                }
+                
+                console.log('Firebase data:', data);
+                
+            } catch (err) {
+                statusEl.className = 'error';
+                statusEl.textContent = '❌ Error fetching data';
+                outputEl.innerHTML = `<strong>Error:</strong> ${err.message}<br><br><strong>Common issues:</strong><br>• Check Firebase Database Rules<br>• Verify database URL is correct<br>• Ensure API key has access`;
+                console.error('Fetch error:', err);
+            } finally {
+                fetchBtn.disabled = false;
+            }
+        }
+
+        // Allow Enter key on button
+        fetchBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') fetchFirebaseData();
+        });
     </script>
 </body>
 </html>
