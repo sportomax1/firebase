@@ -3,6 +3,7 @@ name: Build and Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:  # 💡 Optional: lets you run manually from GitHub Actions tab
 
 permissions:
   contents: write
@@ -17,10 +18,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 🪄 Create env.js in the root instead of /public
       - name: Create env.js from secrets
         run: |
-          mkdir -p public
-          cat <<EOF > public/env.js
+          cat <<EOF > env.js
           window.__APP_CONFIG__ = {
             FIREBASE_API_KEY: "${{ secrets.FIREBASE_API_KEY }}",
             FIREBASE_DB_URL: "${{ secrets.FIREBASE_DB_URL }}",
@@ -28,13 +29,17 @@ jobs:
           };
           EOF
 
+      # 🧪 Optional: debug to confirm file exists
+      - name: List files after generating env.js
+        run: ls -R
+
       - name: Configure Pages
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .  # root of your site
+          path: .  # deploy everything in repo root
 
   deploy:
     runs-on: ubuntu-latest
