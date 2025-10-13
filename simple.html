@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Welcome — My Program</title>
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --accent:#4f46e5;
+      --muted:#94a3b8;
+      --glass: rgba(255,255,255,0.03);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    html,body{height:100%;margin:0;background:
+      radial-gradient(1200px 600px at 10% 10%, rgba(79,70,229,0.12), transparent 8%),
+      radial-gradient(900px 500px at 90% 90%, rgba(6,95,70,0.06), transparent 6%),
+      var(--bg); color:#e6eef8;}
+    .wrap{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+      box-sizing:border-box;
+    }
+    .card{
+      width:100%;
+      max-width:920px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:16px;
+      padding:28px;
+      box-shadow: 0 8px 30px rgba(2,6,23,0.7);
+      border: 1px solid rgba(255,255,255,0.03);
+      backdrop-filter: blur(6px);
+    }
+    .top{
+      display:flex;
+      gap:18px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .title{
+      display:flex;
+      gap:14px;
+      align-items:center;
+    }
+    .logo{
+      width:60px;height:60px;border-radius:12px;
+      background:linear-gradient(135deg,var(--accent), #06b6d4);
+      display:flex;align-items:center;justify-content:center;font-weight:700;
+      color:white;font-size:20px;box-shadow:0 6px 22px rgba(79,70,229,0.18);
+    }
+    h1{margin:0;font-size:1.6rem;letter-spacing:0.2px}
+    p.lead{margin:6px 0 0;color:var(--muted)}
+    .controls{
+      display:flex;gap:10px;align-items:center;margin-top:20px;
+      flex-wrap:wrap;
+    }
+    input[type="text"]{
+      padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
+      background:var(--glass); color:inherit; min-width:220px;
+    }
+    button{
+      padding:10px 14px;border-radius:10px;border:0;background:var(--accent);
+      color:white;font-weight:600;cursor:pointer;
+      box-shadow: 0 6px 18px rgba(79,70,229,0.2);
+    }
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06); color:var(--muted); box-shadow:none;}
+    .welcome{
+      margin-top:18px;padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.06));
+      display:flex;align-items:center;gap:16px;
+    }
+    .welcome .emoji{font-size:40px}
+    .big-msg{font-weight:700;font-size:1.25rem}
+    .sub-msg{color:var(--muted);margin-top:6px;font-size:0.95rem}
+    table{
+      width:100%;border-collapse:collapse;margin-top:18px;font-size:0.95rem;
+    }
+    th,td{padding:8px 10px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03)}
+    th{color:var(--muted);font-weight:600}
+    .footer{margin-top:14px;color:var(--muted);font-size:0.86rem}
+    @keyframes pulse {
+      0%{transform:translateY(0);opacity:1}
+      50%{transform:translateY(-6px);opacity:0.95}
+      100%{transform:translateY(0);opacity:1}
+    }
+    .logo { animation: pulse 3s infinite; }
+    .confetti {
+      pointer-events:none;
+      position:absolute; inset:0; overflow:hidden; border-radius:16px;
+      display:none;
+    }
+    .confetti.show{display:block}
+    .confetti i{
+      position:absolute; font-style:normal; transform:translateY(-20px);
+      animation:fall 2.6s linear forwards;
+      opacity:0;
+    }
+    @keyframes fall {
+      0%{transform:translateY(-40px) rotate(0deg); opacity:1}
+      100%{transform:translateY(420px) rotate(360deg); opacity:0}
+    }
+    /* small screens */
+    @media (max-width:560px){
+      .title h1{font-size:1.25rem}
+      .logo{width:50px;height:50px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="main" aria-labelledby="main-title">
+      <div class="top">
+        <div class="title">
+          <div class="logo" aria-hidden="true">MP</div>
+          <div>
+            <h1 id="main-title">Welcome to my program</h1>
+            <p class="lead">A small starting page you can customize — fast, simple, delightful. 🚀</p>
+          </div>
+        </div>
+
+        <div style="text-align:right">
+          <div style="font-size:0.85rem;color:var(--muted)">Local zip: <strong>80134</strong></div>
+          <div style="margin-top:6px"><button id="resetBtn" class="ghost">Reset</button></div>
+        </div>
+      </div>
+
+      <div class="controls" aria-hidden="false">
+        <label for="nameInput" style="color:var(--muted)">Enter your name</label>
+        <input id="nameInput" type="text" placeholder="Type a name (try Kevin)" />
+        <button id="sayHiBtn">Say Hello 👋</button>
+        <button id="celebrateBtn" title="Confetti">Party 🎉</button>
+      </div>
+
+      <div class="welcome" id="welcomeBox" aria-live="polite">
+        <div class="emoji" id="emoji">🤖</div>
+        <div style="flex:1">
+          <div class="big-msg" id="bigMsg">Welcome to my program — open the console for secrets.</div>
+          <div class="sub-msg" id="subMsg">Personalize with your name above and click “Say Hello”.</div>
+        </div>
+      </div>
+
+      <table aria-label="Feature list">
+        <thead>
+          <tr><th>Feature</th><th>Status</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Personalized welcome</td><td>Ready</td><td>Type a name & hit Say Hello</td></tr>
+          <tr><td>Confetti celebration</td><td>Optional</td><td>Click Party 🎉</td></tr>
+          <tr><td>Mobile friendly</td><td>Yes</td><td>Responsive layout</td></tr>
+        </tbody>
+      </table>
+
+      <div class="footer">
+        Pro tip: open dev tools → Console for a tiny log message. Want this to be a GitHub Pages site? Save as <code>index.html</code> and push to a repo titled `<your-username>.github.io`. 😎
+      </div>
+
+      <div class="confetti" id="confettiArea" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <script>
+    const nameInput = document.getElementById('nameInput');
+    const sayHiBtn = document.getElementById('sayHiBtn');
+    const bigMsg = document.getElementById('bigMsg');
+    const subMsg = document.getElementById('subMsg');
+    const emoji = document.getElementById('emoji');
+    const resetBtn = document.getElementById('resetBtn');
+    const celebrateBtn = document.getElementById('celebrateBtn');
+    const confettiArea = document.getElementById('confettiArea');
+
+    function greet(name){
+      if(!name) {
+        bigMsg.textContent = 'Welcome to my program — whoops, you didn\\'t give a name!';
+        subMsg.textContent = 'Try entering your name above (I like Kevin).';
+        emoji.textContent = '🤔';
+        return;
+      }
+      bigMsg.textContent = `Welcome to my program, ${name}!`;
+      subMsg.textContent = `Nice to see you, ${name}. Earned a virtual high-five.`;
+      emoji.textContent = '🙌';
+      console.log(`[app] greeted user: ${name} — ${new Date().toISOString()}`);
+    }
+
+    sayHiBtn.addEventListener('click', ()=> greet(nameInput.value.trim()));
+    nameInput.addEventListener('keydown', (e)=> {
+      if(e.key === 'Enter') greet(nameInput.value.trim());
+    });
+
+    resetBtn.addEventListener('click', ()=>{
+      nameInput.value = '';
+      bigMsg.textContent = 'Welcome to my program — open the console for secrets.';
+      subMsg.textContent = 'Personalize with your name above and click “Say Hello”.';
+      emoji.textContent = '🤖';
+      confettiArea.classList.remove('show');
+      confettiArea.innerHTML = '';
+    });
+
+    celebrateBtn.addEventListener('click', ()=> {
+      fireConfetti();
+    });
+
+    // Simple confetti generator (no external libs)
+    function fireConfetti(){
+      confettiArea.classList.add('show');
+      confettiArea.innerHTML = '';
+      const colors = ['🎉','✨','💥','⭐','🎈','🍀','🔥'];
+      for(let i=0;i<24;i++){
+        const span = document.createElement('i');
+        span.textContent = colors[Math.floor(Math.random()*colors.length)];
+        span.style.left = (Math.random()*90)+'%';
+        span.style.fontSize = (10 + Math.random()*24) + 'px';
+        span.style.animationDelay = (Math.random()*0.3)+'s';
+        confettiArea.appendChild(span);
+      }
+      // hide after animation
+      setTimeout(()=> confettiArea.classList.remove('show'), 2800);
+    }
+
+    // small accessibility touch: focus input on load
+    window.addEventListener('load', ()=> {
+      nameInput.focus();
+      console.info('[app] index.html loaded — welcome!');
+    });
+  </script>
+</body>
+</html>
