@@ -1,14 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Firebase Secret Demo</title>
+    <meta charset="UTF-8">
+    <title>My Firebase Test</title>
 </head>
 <body>
-  <h1>🎯 Students List</h1>
-  <div id="output">Loading...</div>
+    <h1>Welcome to My Program</h1>
 
-  <script src="public/env.js"></script>
-  <script src="scripts/fetchData.js"></script>
+    <!-- Load Firebase secrets first -->
+    <script src="env.js"></script>
+
+    <!-- Then your main fetch script -->
+    <script src="scripts/fetchData.js"></script>
+
+    <script>
+      // Optional: quick check that secrets loaded correctly
+      if (!window.__APP_CONFIG__) {
+        console.error("env.js not loaded! Firebase config missing.");
+      } else {
+        console.log("Firebase config loaded:", window.__APP_CONFIG__);
+      }
+    </script>
 </body>
 </html>
